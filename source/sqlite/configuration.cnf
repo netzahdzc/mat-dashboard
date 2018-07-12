@@ -1,0 +1,12 @@
+[mysql]
+username: root
+password: password_fiware_server
+host: localhost:3306
+database: matest
+
+[sqlite]
+file_dir: uploads
+
+[parsed]
+parsed_file_dir: parsed_files
+

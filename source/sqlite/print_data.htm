@@ -1,0 +1,167 @@
+<!--
+http://investigacion.inger.gob.mx:8000
+	
+http://investigacion.inger.gob.mx:8000/sqlite/print_data.htm?type=tug&dir=acc&fname=pre_cleaning_9@T53Acc
+http://investigacion.inger.gob.mx:8000/sqlite/print_data.htm?type=tug&dir=acc&fname=post_cleaning_9@T53Acc&sensibility=0.036631127919795
+
+Para incluir datapoints
+http://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/stock/demo/flags-general/
+
+Para moldear un poco las lineas
+http://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/stock/demo/spline/
+-->
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Highstock Example</title>
+
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+
+		<script type="text/javascript">
+        function getParamFromURL(name)
+        {  
+            name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");  
+            var regexS = "[\\?&]"+name+"=([^&#]*)";  
+            var regex = new RegExp( regexS );  
+            var results = regex.exec(window.location.href);
+            if(results == null)
+                return "";  
+            else    
+                return results[1];
+        }
+
+/////////////////////////////////
+/////////////////////////////////
+
+$(function() {
+
+	if(getParamFromURL("type") == "tug" || getParamFromURL("type") == "strenght"){
+		variable = 'Axis processed';
+		ext = '_'+getParamFromURL("type");
+
+		if(getParamFromURL("fname").indexOf("Ori") > -1 ){
+			names = ['azimuth','pitch','roll'];
+		}else{
+			names = ['Signal'];
+		}
+	}
+
+	if( getParamFromURL("type").indexOf("balance") > -1 ){
+		variable = 'Axis Y processed';
+		ext = '_'+getParamFromURL("type");
+		names = ['azimuth','pitch','roll'];
+	}
+	
+	// if(getParamFromURL("type") == "steps"){
+	// 	variable = 'Axis Y processed';
+	// 	ext = '_steps';
+	// }
+
+	// if(getParamFromURL("type") == "fft"){
+	// 	variable = 'FFT of axis Y';
+	// 	ext = '_fft';
+	// }
+
+	// if(getParamFromURL("type") == "hr"){
+	// 	variable = 'HR average for windows';
+	// 	ext = '';
+	// }
+
+	// if(getParamFromURL("type") == "rms"){
+	// 	variable = 'RMS';
+	// 	ext = '_rms';
+	// }
+
+	var seriesOptions = [],
+		yAxisOptions = [],
+		seriesCounter = 0,
+		colors = Highcharts.getOptions().colors;
+
+	$.each(names, function(i, name) {
+		//alert('./parsed_files/'+getParamFromURL("dir")+'/'+getParamFromURL("fname")+ext+'.json');
+		$.getJSON('./parsed_files/'+getParamFromURL("dir")+'/'+getParamFromURL("fname")+ext+'.json', function(data) {
+			seriesOptions[i] = {
+				name: name,
+				data: data[i].data
+			};
+			//console.log(data[i].data);
+			
+			// As we're loading the data asynchronously, we don't know what order it will arrive. So
+			// we keep a counter and create the chart when all the data is loaded.
+			seriesCounter++;
+
+			if (seriesCounter == names.length) {
+				createChart();
+				//alert(seriesOptions);
+			}
+		});
+	});
+
+
+
+	// create the chart when all data is loaded
+	function createChart() {
+
+		$('#container').highcharts('StockChart', {
+			global: {
+        		useUTC: false
+    		},
+
+		    chart: {
+		    },
+
+		    rangeSelector: {
+		        selected: 4
+		    },
+
+		    yAxis: {
+		    	labels: {
+		    		formatter: function() {
+		    			return (this.value > 0 ? '+' : '') + this.value + 'm/s2';
+		    		}
+		    	},
+		    	plotLines: [{
+                value: parseFloat(getParamFromURL("sensibility")),
+                color: 'green',
+                dashStyle: 'shortdash',
+                width: 2,
+                label: {
+                    text: ''
+                }
+            	}, {
+                value: -parseFloat(getParamFromURL("sensibility")),
+                color: 'red',
+                dashStyle: 'shortdash',
+                width: 2,
+                label: {
+                    text: ''
+                }
+            	}]
+		    },
+		    
+		    /*plotOptions: {
+		    	series: {
+		    		compare: 'percent'
+		    	}
+		    },*/
+		    
+		    tooltip: {
+		    	//pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.change}%)<br/>',
+		    	valueDecimals: 3
+		    },
+		    
+		    series: seriesOptions
+		});
+	}
+
+});
+		</script>
+	</head>
+	<body>
+<script src="./js/highstock.js"></script>
+<script src="./js/modules/exporting.js"></script>
+
+<div id="container" style="height: 500px; min-width: 600px"></div>
+	</body>
+</html>
