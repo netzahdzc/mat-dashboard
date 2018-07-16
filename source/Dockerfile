@@ -7,5 +7,5 @@ COPY ./default.conf /etc/nginx/conf.d/default.conf
 COPY ./ /usr/share/nginx/html
 
 # Needed packages
-RUN apt-get update && apt-get dist-upgrade
+RUN apt-get update -y && apt-get dist-upgrade -y
 RUN apt-get install -y mysql-server
