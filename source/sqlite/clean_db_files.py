@@ -10,13 +10,15 @@ import hashlib
 
 import os
 from subprocess import Popen, PIPE, STDOUT
+from crate import client # FIWARE adaptation
 import sqlite3
 import MySQLdb
 from datetime import datetime
 
 i = 0
 config = ConfigParser.ConfigParser()
-config.read("./configuration.cnf")
+config.read("../../sqlite/configuration.cnf")
+# config.read("configuration.cnf")
 file_dir = config.get('sqlite', 'file_dir')
 parsed_file_dir = config.get('parsed', 'parsed_file_dir')
 
@@ -24,13 +26,44 @@ mysql_username = config.get('mysql', 'username')
 mysql_password = config.get('mysql', 'password')
 mysql_host = config.get("mysql", 'host')
 mysql_database_name = config.get("mysql", "database")
+mysql_fiware_database_name = config.get("mysql", "fiware_database") # FIWARE adaptation
+table_list = ['sensor_linear_acceleration', 'sensor_orientation', 'controls', 'participants', 'sessions', 'technicals', 'tests', 'users']
 
-def clean_data_base(table):
+def clean_data_fiware_crate():
+	"""
+	To take action on the CRATE's database controller
+	"""
+	connection = client.connect()
+	cursor = connection.cursor()
+
+	# etquestionnaire
+	cursor.execute("SELECT entity_id, COUNT(*) AS n FROM etquestionnaire GROUP BY entity_id HAVING COUNT(*) > 1")
+
+	results = cursor.fetchall()
+	for row in results:
+		cursor.execute("SELECT time_index FROM etquestionnaire WHERE entity_id LIKE '%s' ORDER BY time_index DESC LIMIT 1" % row[0])
+		results_ = cursor.fetchall()
+		cursor.execute("DELETE FROM etquestionnaire WHERE time_index = %s " % results_[0][0])
+
+	# etquestion
+	cursor.execute("SELECT entity_id, COUNT(*) AS n FROM etquestion GROUP BY entity_id HAVING COUNT(*) > 1")
+
+	results = cursor.fetchall()
+	for row in results:
+		cursor.execute("SELECT time_index FROM etquestion WHERE entity_id LIKE '%s' ORDER BY time_index DESC LIMIT 1" % row[0])
+		results_ = cursor.fetchall()
+		cursor.execute("DELETE FROM etquestion WHERE time_index = %s " % results_[0][0])
+
+
+	cursor.close()
+	connection.close()
+
+def clean_data_base(table, dbName):
 	"""
 	This function truncates and reset autoincrease counter for all tables.
 	"""
 	try:
-		mysql_conn = MySQLdb.connect(host=mysql_host,user=mysql_username,passwd=mysql_password,db=mysql_database_name,charset='utf8')
+		mysql_conn = MySQLdb.connect(host=mysql_host,user=mysql_username,passwd=mysql_password,db=dbName,charset='utf8')
 		mysql_cursor = mysql_conn.cursor()
 		mysql_cursor.execute("""
 			TRUNCATE `"""+table+"""` 
@@ -54,44 +87,56 @@ def clean_data_base(table):
 		#if conn:
 		#	conn.close()
 
+
 if __name__ == "__main__":
 	"""
 	This script, trigger both cleanning functions.
+	Below section clean tables used for the mysqlite-files based approach.
 	"""
-	#print ("</br>Process starting...")
-	clean_data_base("controls")
-	clean_data_base("participants")
-	clean_data_base("sensor_linear_acceleration")
-	clean_data_base("sensor_orientation")
-	clean_data_base("sessions")
-	clean_data_base("technicals")
-	clean_data_base("tests")
-	clean_data_base("users")
+	for table in table_list: 
+		clean_data_base(table, mysql_database_name)
+
+	"""
+	Below section clean tables used for the FIWARE approach.
+	"""
+	for table in table_list: 
+		clean_data_base(table, mysql_fiware_database_name)
+
+	"""
+	This function, remove the questionnaire on QL, since at this point the information is coming from the client-side
+	instead of the dashboard
+	"""
+	clean_data_fiware_crate()
 
 	"""
 	This section cleans main db files.
 	"""
 	lastone = ""
-	onlyfiles = [f for f in os.listdir("./"+file_dir) if os.path.isfile(os.path.join("./"+file_dir, f))]
+	onlyfiles = [f for f in os.listdir("../../sqlite/"+file_dir) if os.path.isfile(os.path.join("../../sqlite/"+file_dir, f))]
 	onlyfiles.sort()
 
 	for (f) in onlyfiles:
 		if (f.endswith(".db.processed")):
 			try:
-				os.rename("./"+file_dir+"/"+f, "./"+file_dir+"/"+f.split(".")[0]+".db")
+				os.rename("../../sqlite/"+file_dir+"/"+f, "../../sqlite/"+file_dir+"/"+f.split(".")[0]+".db")
 			except Exception as e:
-				print (e)
+				if('No such file or directory' not in e):
+					print("Error catched: %s" % e)
+					continue
+				#print (e)
 
 	for (f) in onlyfiles:
 		if (f.endswith(".db")):
 			if (not f.endswith(("orientatio", "accelerome"), 7, 17)):
 				try:
-					os.rename("./"+file_dir+"/"+f, "./"+file_dir+"/"+f+".deprecated")
+					os.rename("../../sqlite/"+file_dir+"/"+f, "../../sqlite/"+file_dir+"/"+f+".deprecated")
 					i = i + 1;
-					#print ("</br>Processed: " + f)
-					lastone = "./"+file_dir+"/"+f+".deprecated"
+					lastone = "../../sqlite/"+file_dir+"/"+f+".deprecated"
 				except Exception as e:
-					print (e)
+					if('No such file or directory' not in e):
+						print("Error catched: %s" % e)
+						continue
+					#print (e)
 
 	if (lastone!=""):
 		os.rename(lastone, lastone.split(".db", 1)[0]+".db")
@@ -99,38 +144,36 @@ if __name__ == "__main__":
 		"""
 		This section cleans ACC's txt files that will be created on step 3, so redundance is avoided
 		"""
-		#print ("</br>Cleaning acc txt files...")
-		onlyfiles = [f for f in os.listdir("./"+parsed_file_dir+"/acc") if os.path.isfile(os.path.join("./"+parsed_file_dir+"/acc", f))]
+		onlyfiles = [f for f in os.listdir("../../sqlite/"+parsed_file_dir+"/acc") if os.path.isfile(os.path.join("../../sqlite/"+parsed_file_dir+"/acc", f))]
 		onlyfiles.sort()
 		for (f) in onlyfiles:
 			try:
-				os.remove("./"+parsed_file_dir+"/acc/"+f)
-				#print ("</br>Processed: " + f)
+				os.remove("../../sqlite/"+parsed_file_dir+"/acc/"+f)
 			except Exception as e:
-				print (e)
-
+				if('No such file or directory' not in e):
+					continue
+				else:
+					print("Error catched: %s" % e)
 
 
 		"""
 		This section cleans ORIENT's txt files that will be created on step 3, so redundance is avoided
 		"""
-		#print ("</br>Cleaning orient txt files...")
-		onlyfiles = [f for f in os.listdir("./"+parsed_file_dir+"/orient") if os.path.isfile(os.path.join("./"+parsed_file_dir+"/orient", f))]
+		onlyfiles = [f for f in os.listdir("../../sqlite/"+parsed_file_dir+"/orient") if os.path.isfile(os.path.join("../../sqlite/"+parsed_file_dir+"/orient", f))]
 		onlyfiles.sort()
 		for (f) in onlyfiles:
 			try:
-				os.remove("./"+parsed_file_dir+"/orient/"+f)
-				#print ("</br>Processed: " + f)
+				os.remove("../../sqlite/"+parsed_file_dir+"/orient/"+f)
 			except Exception as e:
-				print (e)
+				if('No such file or directory' not in e):
+					continue
+				else:
+					print("Error catched: %s" % e)
 
 		if (i == 1):
-			print ("</br>Process finished.</br></br>Continue pressing button 2.")
+			print ("Process finished.</br></br>Continue to step 2.")
 		else:
-			print ("</br>Please, press this button again.")
+			print ("Please, press this button again.")
 	else:
-		print ("</br>Please confirm there are file uploaded to the server. If so, please, press this button again, otherwise, proceede to upload mobile files to continue.")
-
-	#print ("</br>Process finished")
-
+		print ("Please confirm there are file uploaded to the server. If so, please, press this button again, otherwise, proceede to upload mobile files to continue.")
 

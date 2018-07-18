@@ -1,2 +1,9 @@
-Flask
-Redis
+
+sudo pip install crate
+
+install https://www.tutorialspoint.com/sqlite/sqlite_installation.htm
+
+sudo easy_install nose
+sudo easy_install tornado
+sudo pip install pysqlite
+

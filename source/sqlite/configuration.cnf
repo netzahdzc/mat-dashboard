@@ -1,8 +1,9 @@
 [mysql]
 username: root
 password: password_fiware_server
-host: localhost:3306
+host: localhost
 database: matest
+fiware_database: fiware_matest
 
 [sqlite]
 file_dir: uploads

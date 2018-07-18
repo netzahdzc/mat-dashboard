@@ -11,10 +11,10 @@ include_once('class.mysqli.php');
 
 <?php
 //Open database
-$db = new MySQL("matest");
+$db = new MySQL("fiware_matest");
 		
 //Reading data
-$consulta = $db->consulta("SELECT * FROM participants WHERE id LIKE ".$_GET["patient_id"]."");
+$consulta = $db->consulta("SELECT * FROM participants WHERE id LIKE ".$_GET["participant_id"]."");
 
 $files = array();
 while($row=$db->fetch_array($consulta)){
@@ -30,10 +30,10 @@ $db->close();
 
 <?php
 //Open database
-$db = new MySQL("matest");
+$db = new MySQL("fiware_matest");
 		
 //Reading data
-$consulta = $db->consulta("SELECT * FROM tests WHERE patient_id LIKE ".$_GET["patient_id"]."");
+$consulta = $db->consulta("SELECT * FROM tests WHERE participant_id LIKE ".$_GET["participant_id"]."");
 
 $files = array();
 echo "<table style='width:100%; font-size:0.8em;'>
@@ -66,7 +66,7 @@ while($row=$db->fetch_array($consulta)){
 
 	echo "
     <tr bgcolor='#".$bgcolor."'>
-        <td align='left'><font color='#".$fontcolor."'>P".$row["patient_id"]."T".$row["id"]."</font></td>
+        <td align='left'><font color='#".$fontcolor."'>P".$row["participant_id"]."T".$row["id"]."</font></td>
         <td align='left'><font color='#".$fontcolor."'>".$testData[0]." (".$testData[1].")</font></td>
         <td align='center'><font color='#".$fontcolor."'>".date('d-m-Y H:i:s', strtotime($row["beginning_sensor_collection_timestamp"]))."</font></td>
         <td align='center'><font color='#".$fontcolor."'>".$row["q1"]."</font></td>
@@ -85,8 +85,8 @@ while($row=$db->fetch_array($consulta)){
 
     //********************************************************************
     //********************************************************************
-    $sensibility_tug = 1.9;
-    $sensibility_strength = 2.0;
+    $sensibility_tug = 1.7;
+    $sensibility_strength = 1.4;
     $sensibility = array($sensibility_tug, $sensibility_strength);
     //********************************************************************
     //********************************************************************
@@ -98,11 +98,11 @@ while($row=$db->fetch_array($consulta)){
         else
             $duration = "";
 
-        echo "<td align='center'><font color='#".$fontcolor."'><a target='_blank' href='./eventsDetector.php?patient_id=".$row["patient_id"]."&test_id=".$row["id"]."&type_test=".$row["type_test"]."&test_option=".$row["test_option"].$duration."'>Ver</a></font></td>";
+        echo "<td align='center'><font color='#".$fontcolor."'><a target='_blank' href='./eventsDetector.php?participant_id=".$row["participant_id"]."&test_id=".$row["id"]."&type_test=".$row["type_test"]."&test_option=".$row["test_option"].$duration."'>Open</a></font></td>";
         
         if($row["type_test"]=="1" || $row["type_test"]=="2"){
-            echo "<td align='center'><font color='#".$fontcolor."'><a target='_blank' href='./print_data.htm?fname=pre_cleaning_".$row["patient_id"]."@T".$row["id"]."Acc&type=".getTestTypeId($row["type_test"])."&dir=acc'>pre</a>&nbsp;&nbsp;";
-            echo "<a target='_blank' href='./print_data.htm?fname=post_cleaning_".$row["patient_id"]."@T".$row["id"]."Acc&type=".getTestTypeId($row["type_test"])."&dir=acc&sensibility=".getSensibility($row["type_test"],$sensibility)."'>pos</a></font></td>";
+            echo "<td align='center'><font color='#".$fontcolor."'><a target='_blank' href='./print_data.htm?fname=pre_cleaning_".$row["participant_id"]."@T".$row["id"]."Acc&type=".getTestTypeId($row["type_test"])."&dir=acc'>pre</a>&nbsp;&nbsp;";
+            echo "<a target='_blank' href='./print_data.htm?fname=post_cleaning_".$row["participant_id"]."@T".$row["id"]."Acc&type=".getTestTypeId($row["type_test"])."&dir=acc&sensibility=".getSensibility($row["type_test"],$sensibility)."'>post</a></font></td>";
         }else{
             echo "<td align='center'><font color='#".$fontcolor."'>---</font></td>";
         }

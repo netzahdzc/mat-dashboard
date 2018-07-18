@@ -9,10 +9,14 @@ services:
             - code-network
     mysql:
         image: mat-tempdb:latest
+        ports:
+            - "3306:3306"
         networks:
             - code-network
     php:
-        image: php:5.6-fpm-alpine
+        image: bitnami/php-fpm:latest
+        depends_on:
+            - mysql
         volumes:
             - ./:/usr/share/nginx/html
         networks:
