@@ -8,7 +8,7 @@ MA-Test is a software development towards [oHealth-Context](https://github.com/n
 
 ## Installation 
 
-This application consist of 3 containers. Install them following the installation direction provided on each container's repository: [mat-tempdb](https://github.com/netzahdzc/mat-tempdb/blob/master/installation_mysql.md), [mat-dashboard](https://github.com/netzahdzc/mat-dashboard/blob/master/installation_dashboard.md), and [Quantumleap](https://github.com/smartsdk/ngsi-timeseries-api). The mobile application is available on [PlayStore](https://play.google.com/store/apps/details?id=com.cicese.android.matest). Further documentation available [here](https://ma-test-fiware.readthedocs.io/en/latest/).
+This application consist of 3 containers. Install them following the installation direction provided on each container's repository in next order: (1) [Quantumleap](https://github.com/smartsdk/ngsi-timeseries-api), (2) [mat-tempdb](https://github.com/netzahdzc/mat-tempdb/blob/master/installation_mysql.md), and (3) [mat-dashboard](https://github.com/netzahdzc/mat-dashboard/blob/master/installation_dashboard.md). The mobile application is available on [PlayStore](https://play.google.com/store/apps/details?id=com.cicese.android.matest); further documentation available [here](https://ma-test-fiware.readthedocs.io/en/latest/).
 
 
 ## Contributing

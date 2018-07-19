@@ -16,7 +16,7 @@ if(!empty($_GET)){
     $buildFlag = true;
     include_once('../../sqlite/class.mysqli.php'); 
     // Open database
-    $db = new MySQL("fiware_matest");
+    $db = new MySQL("matest");
         
     // Read data
     $consulta = $db->consulta("SELECT * FROM tests");

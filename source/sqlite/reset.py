@@ -25,6 +25,7 @@ mysql_password = config.get('mysql', 'password')
 mysql_host = config.get("mysql", 'host')
 mysql_database_name = config.get("mysql", "database")
 mysql_fiware_database_name = config.get("mysql", "fiware_database") # FIWARE adaptation
+mysql_prefix = 'mtmatest';
 table_fiware_list = ['etanswer', 'etcontroltest', 'etdevice', 'etdevicemodel', 'etmotorphysicaltest', 'etparticipant', 'etquestion', 'etquestionnaire', 'etuser'] # FIWARE adaptation
 table_list = ['sensor_linear_acceleration', 'sensor_orientation', 'controls', 'participants', 'sessions', 'technicals', 'tests', 'users']
 
@@ -34,7 +35,7 @@ def clean_data_fiware_crate(table):
 	"""
 	connection = client.connect()
 	cursor = connection.cursor()
-	cursor.execute("DROP TABLE IF EXISTS %s " % table)
+	cursor.execute("DROP TABLE IF EXISTS %s " % (mysql_prefix + table) )
 	cursor.close()
 	connection.close()
 

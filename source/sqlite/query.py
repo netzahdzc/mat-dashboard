@@ -17,7 +17,7 @@ DATABASE_NAME = 'etdevicemodel'
 connection = client.connect(SERVER_IP)
 cursor = connection.cursor()
 
-cursor.execute('SELECT * FROM etdevicemodel')
+cursor.execute('SELECT * FROM mtmatest.etdevicemodel')
 
 for row in cursor:
 	print(row)

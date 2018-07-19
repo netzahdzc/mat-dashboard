@@ -37,22 +37,22 @@ def clean_data_fiware_crate():
 	cursor = connection.cursor()
 
 	# etquestionnaire
-	cursor.execute("SELECT entity_id, COUNT(*) AS n FROM etquestionnaire GROUP BY entity_id HAVING COUNT(*) > 1")
+	cursor.execute("SELECT entity_id, COUNT(*) AS n FROM mysql_prefix.etquestionnaire GROUP BY entity_id HAVING COUNT(*) > 1")
 
 	results = cursor.fetchall()
 	for row in results:
-		cursor.execute("SELECT time_index FROM etquestionnaire WHERE entity_id LIKE '%s' ORDER BY time_index DESC LIMIT 1" % row[0])
+		cursor.execute("SELECT time_index FROM mysql_prefix.etquestionnaire WHERE entity_id LIKE '%s' ORDER BY time_index DESC LIMIT 1" % row[0])
 		results_ = cursor.fetchall()
-		cursor.execute("DELETE FROM etquestionnaire WHERE time_index = %s " % results_[0][0])
+		cursor.execute("DELETE FROM mysql_prefix.etquestionnaire WHERE time_index = %s " % results_[0][0])
 
 	# etquestion
-	cursor.execute("SELECT entity_id, COUNT(*) AS n FROM etquestion GROUP BY entity_id HAVING COUNT(*) > 1")
+	cursor.execute("SELECT entity_id, COUNT(*) AS n FROM mysql_prefix.etquestion GROUP BY entity_id HAVING COUNT(*) > 1")
 
 	results = cursor.fetchall()
 	for row in results:
-		cursor.execute("SELECT time_index FROM etquestion WHERE entity_id LIKE '%s' ORDER BY time_index DESC LIMIT 1" % row[0])
+		cursor.execute("SELECT time_index FROM mysql_prefix.etquestion WHERE entity_id LIKE '%s' ORDER BY time_index DESC LIMIT 1" % row[0])
 		results_ = cursor.fetchall()
-		cursor.execute("DELETE FROM etquestion WHERE time_index = %s " % results_[0][0])
+		cursor.execute("DELETE FROM mysql_prefix.etquestion WHERE time_index = %s " % results_[0][0])
 
 
 	cursor.close()

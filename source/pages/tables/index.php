@@ -2,7 +2,7 @@
 include_once('../../sqlite/class.mysqli.php');  
 
 // Open database
-$db = new MySQL("fiware_matest");
+$db = new MySQL("matest");
   
 if($_GET["remove"]){
   $db->consulta("UPDATE participants SET trash = 1 WHERE id LIKE ".$_GET["participant_id"]);  

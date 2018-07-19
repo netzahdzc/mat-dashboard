@@ -11,7 +11,7 @@ include_once('class.mysqli.php');
 
 <?php
 //Open database
-$db = new MySQL("fiware_matest");
+$db = new MySQL("matest");
 		
 //Reading data
 $consulta = $db->consulta("SELECT * FROM participants WHERE id LIKE ".$_GET["participant_id"]."");
@@ -30,7 +30,7 @@ $db->close();
 
 <?php
 //Open database
-$db = new MySQL("fiware_matest");
+$db = new MySQL("matest");
 		
 //Reading data
 $consulta = $db->consulta("SELECT * FROM tests WHERE participant_id LIKE ".$_GET["participant_id"]."");

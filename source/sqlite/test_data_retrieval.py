@@ -1,70 +1,73 @@
 from crate import client
 
 tables = ['etmotorphysicaltest', 'etdeviceSM', 'etdeviceSE', 'etcontroltest', 'etparticipant', 'etuser', 'etanswer', 'etquestionnaire']
+mysql_prefix = 'mtmatest';
 
 connection = client.connect()
 cursor = connection.cursor()
 
+# FIWARE adaptation starts here
 # Global variables
 refTests = {}
 refDevices = {}
 refTestsSensors = {}
 refSensors = {}
-refQuestionnaire = {}
-refQuestionnaireUsers = {}
+refStartedTest = {}
+refEndedTest = {}
 list_of_answers = {}
 
 # etmotorphysicaltest
 dbConfiguration = 0
 dbEntityId_test = 3
-dbRefDevice = 5
-dbRefUser = 6
+dbRefDevice = 6
+dbRefUser = 7
+dbDateTestEnded = 1
+dbDateTestStarted = 2
+dbTestType = 8
 
 # etdevice
 dbCategory = 0
 dbConsistOf = 2
 dbControlledProperty = 3
 dbEntityId_device = 5
-dbValue = 14
-dbMobileModel = 11
-dbMobileBrand = 9
-dbMobileAndroidApi = 10
-dbAppVersion = 12
+dbValue = 15
+dbMobileModel = 13
+dbMobileBrand = 10
+dbMobileAndroidApi = 11
+dbAppVersion = 13
 dbCreated_device = 4
 
 # etcontroltest
-dbRefUser_control = 8
-dbWeight = 4
-dbHeight = 3
-dbWaist = 10
-dbHeartRate = 6
-dbSystolic = 7
-dbDiastolic = 5
+dbRefUser_control = 9
+dbWeight = 5
+dbHeight = 4
+dbWaist = 11
+dbHeartRate = 7
+dbSystolic = 8
+dbDiastolic = 6
 dbCreated = 0
 
 # etparticipant
-dbName = 4
-dbSurname = 5
-dbGender = 3
+dbName = 5
+dbSurname = 6
+dbGender = 4
 dbTrash = 7
 dbBirthday = 0
 
 # etuser
-dbName_user = 4
-dbSurname_user = 5
+dbName_user = 6
+dbSurname_user = 7
 dbCode = 0
-dbEmail = 1
-dbTrash = 7
+dbEmail = 2
+dbTrash_user = 9
+dbCodeStatus = 1
 
 # etanswer
-dbRefQuestion_answer = 3
-dbRefUser_answer = 4
+dbEntityId_answer = 1
+dbRefQuestion_answer = 4
+dbRefUser_answer = 5
 dbAnswer = 0
-
-# etquestionnaire
-dbEntityId_questionnaire = 1
-dbQuestionnaireType = 3
-dbRefQuestion = 4
+# FIWARE adaptation ends here
 
 for table in tables:
 	q = ''
@@ -77,7 +80,7 @@ for table in tables:
 		table = 'etdevice'
 		q = "WHERE category LIKE 'sensor'"
 
-	cursor.execute("SELECT * FROM %s %s" % (table, q))
+	cursor.execute("SELECT * FROM %s %s" % ( (mysql_prefix + table), q))
 	result = cursor.fetchall()
 	
 	for row in result:
